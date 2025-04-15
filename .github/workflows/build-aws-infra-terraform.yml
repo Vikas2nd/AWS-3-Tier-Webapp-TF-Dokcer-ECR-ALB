@@ -87,12 +87,6 @@ jobs:
     needs: build-aws-infra
     steps:
       
-    - name: Configure AWS Credentials 
-      uses: aws-actions/configure-aws-credentials@v4 
-      with:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS User Credentials.
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS User Credentials.
-        
     # This step is to be able to run "destroy bastion" step
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -118,11 +112,6 @@ jobs:
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       working-directory: ./Monty_Hall_Game_Flask_App
     
-    - name: Login to ECR
-      uses: docker/login-action@v3
-      with:
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-
     - name: SSH into EC2 & Deploy Latest Docker Image into it
       if: env.TRIGGER == 'apply'
       uses: appleboy/ssh-action@master
@@ -140,6 +129,8 @@ jobs:
         proxy_host: ${{ env.BASTION_PUBLIC_IP }}
         proxy_username: ec2-user
         proxy_key: ${{ env.EC2_PRIVATE_SSH_KEY }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         envs: EC2_PRIVATE_SSH_KEY,EC2_PRIVATE_IP,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
         script: |-
           sudo yum update -y
