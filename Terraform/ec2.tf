@@ -85,3 +85,4 @@ resource "aws_instance" "application_instance_2" {
     echo "<h1>Hello World from $(hostname -f)<br> This is The 2nd EC2 Instance</h1>" > /var/www/html/index.html
     EOF
 }
+

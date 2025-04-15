@@ -110,7 +110,7 @@ jobs:
       if: env.TRIGGER == 'apply'
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-        REGISTRY_ALIAS: g4x4w1s3
+        REGISTRY_ALIAS: r8x2r9r8
         REPOSITORY: monty-hall-game
         IMAGE_TAG: ${{ github.sha }}
       run: |
@@ -122,7 +122,7 @@ jobs:
       if: env.TRIGGER == 'apply'
       env:
         REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-        REGISTRY_ALIAS: g4x4w1s3
+        REGISTRY_ALIAS: r8x2r9r8
         REPOSITORY: monty-hall-game
         IMAGE_TAG: ${{ github.sha }}
         AWS_DEFAULT_REGION: us-east-1
