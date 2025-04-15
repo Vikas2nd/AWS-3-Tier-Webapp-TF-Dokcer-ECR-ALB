@@ -101,7 +101,7 @@ jobs:
           
     - name: Login to AWS ECR Public
       if: env.TRIGGER == 'apply'
-      id: login-ecr-public
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2    
       with:
         registry-type: public
@@ -109,7 +109,7 @@ jobs:
     - name: Build and Push Docker Image
       if: env.TRIGGER == 'apply'
       env:
-        REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
+        REGISTRY: ${{ steps.login-ecr-public.ecr.aws }}
         REGISTRY_ALIAS: r8x2r9r8
         REPOSITORY: monty-hall-game
         IMAGE_TAG: ${{ github.sha }}
