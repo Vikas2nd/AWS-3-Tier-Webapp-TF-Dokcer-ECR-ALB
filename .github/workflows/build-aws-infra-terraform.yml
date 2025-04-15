@@ -114,13 +114,14 @@ jobs:
     
     - name: SSH into EC2 & Deploy Latest Docker Image into it
       if: env.TRIGGER == 'apply'
+      uses: appleboy/ssh-action@master
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: example-node-app
         IMAGE_TAG: ${{ github.sha }}
-        AWS_DEFAULT_REGION: eu-north-1
-
-      uses: appleboy/ssh-action@master
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: eu-north-1
       with:
         host: ${{ env.EC2_PRIVATE_IP }}
         username: ec2-user
@@ -128,7 +129,7 @@ jobs:
         proxy_host: ${{ env.BASTION_PUBLIC_IP }}
         proxy_username: ec2-user
         proxy_key: ${{ env.EC2_PRIVATE_SSH_KEY }}
-        envs: EC2_PRIVATE_SSH_KEY,EC2_PRIVATE_IP,REGISTRY,REGISTRY_ALIAS,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
+        envs: EC2_PRIVATE_SSH_KEY,EC2_PRIVATE_IP,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION
         script: |-
           sudo yum update -y
           sudo yum install -y docker
