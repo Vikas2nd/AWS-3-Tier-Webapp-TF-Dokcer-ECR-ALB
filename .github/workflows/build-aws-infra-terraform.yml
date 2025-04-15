@@ -98,33 +98,28 @@ jobs:
     - name: Set Public IP to Env Variables
       if: env.TRIGGER == 'apply'
       run: echo BASTION_PUBLIC_IP=${{ needs.build-aws-infra.outputs.BASTION_PUBLIC_IP }} >> $GITHUB_ENV
-          
-    - name: Login to AWS ECR Public with docker login
-      if: env.TRIGGER == 'apply'
-      uses: docker/login-action@v2    
-          
-    - name: Build and Push Docker Image
-      if: env.TRIGGER == 'apply'
+
+    - name: login to AWS ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: build, push docker image
       env:
-        REGISTRY: public.ecr.aws
-        REGISTRY_ALIAS: r8x2r9r8
-        REPOSITORY: monty-hall-game
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: example-node-app
         IMAGE_TAG: ${{ github.sha }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS User Credentials.
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS User Credentials.
-      run: |
-        docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG .
-        docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+      run: |-
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       working-directory: ./Monty_Hall_Game_Flask_App
     
     - name: SSH into EC2 & Deploy Latest Docker Image into it
       if: env.TRIGGER == 'apply'
       env:
-        REGISTRY: public.ecr.aws
-        REGISTRY_ALIAS: r8x2r9r8
-        REPOSITORY: monty-hall-game
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: example-node-app
         IMAGE_TAG: ${{ github.sha }}
-        AWS_DEFAULT_REGION: us-east-1
+        AWS_DEFAULT_REGION: eu-north-1
+
       uses: appleboy/ssh-action@master
       with:
         host: ${{ env.EC2_PRIVATE_IP }}
@@ -138,8 +133,8 @@ jobs:
           sudo yum update -y
           sudo amazon-linux-extras install docker -y
           sudo service docker start
-          sudo docker pull $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
-          sudo docker run -d --name ECR-Container -p 80:5000 $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE_TAG
+          sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          sudo docker run -d --name ECR-Container -p 80:5000 $REGISTRY/$REPOSITORY:$IMAGE_TAG
 # instead of running script, run Ansible playbook.    
 # Note: run this command when applying for the second time.      
 # sudo docker ps -aq | sudo xargs docker stop | sudo xargs docker rm &&
