@@ -92,7 +92,7 @@ jobs:
       with:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # AWS User Credentials.
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # AWS User Credentials.
-        AWS_REGION: eu-north-1
+        
     # This step is to be able to run "destroy bastion" step
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -122,7 +122,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        
+
     - name: SSH into EC2 & Deploy Latest Docker Image into it
       if: env.TRIGGER == 'apply'
       uses: appleboy/ssh-action@master
