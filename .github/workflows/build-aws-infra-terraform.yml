@@ -70,7 +70,7 @@ jobs:
     - name: Set Output 1
       if: env.TRIGGER == 'apply'
       id: get-private-ip
-      run: echo "ec2_private_ip=$(terraform output ec2_private_ip)" >> $GITHUB_OUTPUT 
+      run: echo "ec2_private_ip=$(terraform output application_private_ip_1)" >> $GITHUB_OUTPUT 
       working-directory: ./Terraform
    
     - name: Set Output 2
